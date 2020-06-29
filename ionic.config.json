@@ -1,5 +1,7 @@
 {
   "name": "Mobile_RosTriggering",
-  "integrations": {},
+  "integrations": {
+    "cordova": {}
+  },
   "type": "angular"
 }
