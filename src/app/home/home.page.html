@@ -1,9 +1,23 @@
 <ion-content color="primary">
   <div class="container">
     <div class="header">
-      <button class="waves-effect btn header-btn color-primary"><ion-icon class="btn-icon pt-3" name="home"></ion-icon></button>
-      <button class="waves-effect btn header-btn color-primary"><ion-icon class="btn-icon pt-3" name="settings"></ion-icon></button>
+      <button class="waves-effect btn header-btn color-primary">
+        <ion-icon class="btn-icon pt-3" name="home"></ion-icon>
+      </button>
+      <button class="waves-effect btn header-btn color-primary">
+        <ion-icon class="btn-icon pt-3" name="settings"></ion-icon>
+      </button>
       <img class="header-logo" src="../../assets/1050x300-FreightSnap-Logo.png" />
+    </div>
+    <div class="content">
+      <div class="input-field col s12">
+        <input id="pro_number" type="text" class="validate black-text">
+        <label for="pro_number" class="pro-number-placeholder">PRO #</label>
+      </div>
+      <div class="waves-effect waves-light btn screen-area">
+        <img />
+      </div>
+      <button class="waves-effect btn color-primary scan-btn">SCAN</button>
     </div>
   </div>
 </ion-content>
