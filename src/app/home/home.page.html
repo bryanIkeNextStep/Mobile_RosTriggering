@@ -12,13 +12,13 @@
     <div class="content">
       <div id="home-section">
         <div class="input-field col s12">
-          <input id="pro_number" type="text" class="validate black-text">
+          <input id="pro_number" type="text" class="validate color-black black-text">
           <label for="pro_number" class="pro-number-placeholder">PRO #</label>
         </div>
         <div class="waves-effect waves-light btn screen-area">
           <img />
         </div>
-        <button class="waves-effect btn color-primary scan-btn">SCAN</button>
+        <button class="waves-effect btn color-primary scan-btn" (click)="scan()">SCAN</button>
         <div class="measurement-section">
           <div class="tile">
             <div class="container">
@@ -75,15 +75,15 @@
   <div id="settings-section" class="settings-section hide">
     <div class="setting-header white-text color-secondary">
       <div class="left">
-        <p class="header-link inline">UPLOAD</p>
-        <P class="header-link inline">CAMERA</P>
-        <p class="header-link inline">SCALE</p>
+        <p class="header-link inline" (click)="showSettingsPage('upload')">UPLOAD</p>
+        <P class="header-link inline" (click)="showSettingsPage('camera')">CAMERA</P>
+        <p class="header-link inline" (click)="showSettingsPage('scale')">SCALE</p>
       </div>
       <div class="right">
-        <p class="header-title">CLOUD SETTINGS</p>
+        <p id="settings-title" class="header-title">CLOUD SETTINGS</p>
       </div>
     </div>
-    <div class="setting-content-upload">
+    <div id="setting-content-upload">
       <div class="checkbox-section">
         <ion-item color="primary">
           <ion-label>UPLOAD</ion-label>
@@ -124,6 +124,12 @@
           <button class="waves-effect btn color-grey settings-btn">CANCEL</button>
         </div>
       </div>
+    </div>
+    <div id="setting-content-camera">
+      <p>CAMERA</p>
+    </div>
+    <div id="setting-content-scale">
+      <p>SCALE</p>
     </div>
   </div>
 </ion-content>
