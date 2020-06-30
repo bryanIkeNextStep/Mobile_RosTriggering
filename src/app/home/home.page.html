@@ -1,16 +1,16 @@
 <ion-content color="primary">
   <div class="container">
     <div class="header">
-      <button class="waves-effect btn header-btn color-primary">
+      <button class="waves-effect btn header-btn color-primary" (click)="showHome()">
         <ion-icon class="btn-icon pt-3" name="home"></ion-icon>
       </button>
-      <button class="waves-effect btn header-btn color-primary">
+      <button class="waves-effect btn header-btn color-primary" (click)="showSettings()">
         <ion-icon class="btn-icon pt-3" name="settings"></ion-icon>
       </button>
       <img class="header-logo" src="../../assets/1050x300-FreightSnap-Logo.png" />
     </div>
     <div class="content">
-      <div class="scan-section">
+      <div id="home-section">
         <div class="input-field col s12">
           <input id="pro_number" type="text" class="validate black-text">
           <label for="pro_number" class="pro-number-placeholder">PRO #</label>
@@ -68,6 +68,60 @@
               </div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="settings-section" class="settings-section hide">
+    <div class="setting-header white-text color-secondary">
+      <div class="left">
+        <p class="header-link inline">UPLOAD</p>
+        <P class="header-link inline">CAMERA</P>
+        <p class="header-link inline">SCALE</p>
+      </div>
+      <div class="right">
+        <p class="header-title">CLOUD SETTINGS</p>
+      </div>
+    </div>
+    <div class="setting-content-upload">
+      <div class="checkbox-section">
+        <ion-item color="primary">
+          <ion-label>UPLOAD</ion-label>
+          <ion-checkbox color="primary" checked slot="start" checked="false"></ion-checkbox>
+        </ion-item>
+        <ion-item color="primary">
+          <ion-label>REFERENCE NUMBER</ion-label>
+          <ion-checkbox color="primary" checked slot="start" checked="true"></ion-checkbox>
+        </ion-item>
+        <ion-item color="primary">
+          <ion-label>LOCAL SAVE</ion-label>
+          <ion-checkbox color="primary" checked slot="start" checked="false"></ion-checkbox>
+        </ion-item>
+      </div>
+      <div class="input-section">
+        <div class="row">
+          <div class="col s6">
+            <ion-label position="floating">User ID</ion-label>
+            <ion-input></ion-input>
+          </div>
+          <div class="col s6">
+            <ion-label position="floating">Company ID</ion-label>
+            <ion-input></ion-input>
+          </div>
+          <div class="col s6">
+            <ion-label position="floating">Terminal ID</ion-label>
+            <ion-input></ion-input>
+          </div>
+          <div class="col s6">
+            <ion-label position="floating">Scanner ID</ion-label>
+            <ion-input></ion-input>
+          </div>
+        </div>
+        <div class="container">
+          <ion-label position="floating">Company Name</ion-label>
+          <ion-input></ion-input>
+          <button class="waves-effect btn color-primary settings-btn">SAVE CONFIGURATION</button>
+          <button class="waves-effect btn color-grey settings-btn">CANCEL</button>
         </div>
       </div>
     </div>
