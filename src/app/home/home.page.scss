@@ -59,6 +59,22 @@
   background-color: #808080;
 }
 
+.color-yellow {
+  background-color: #FFD700;
+}
+
+.color-alt-blue {
+  background-color: #51b5e0;
+}
+
+.color-green {
+  background-color: chartreuse;
+}
+
+.color-crimson {
+  background-color: crimson;
+}
+
 .pro-number-placeholder {
   color: black;
   font-size: 30px;
@@ -80,6 +96,16 @@
   height: 95%;
   width: 100%;
   margin-top: 6px;
+}
+
+.status-section {
+  height: 35px;
+  width: 100%;
+  border-radius: 3px 3px 0 0;
+  font-size: 25px;
+  color: white;
+  font-weight: bold;
+  text-align: center;
 }
 
 .scan-btn {
