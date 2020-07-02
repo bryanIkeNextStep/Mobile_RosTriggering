@@ -16,8 +16,17 @@ export class HomePage {
   y: any;
   z: any;
   weight: any;
+  reference_number: 123;
 
   ros: any;
+  image: any;
+
+  settings_pub: any;
+  imageTopic: any;
+  trigger_pub: any;
+  trigger_sub: any;
+  listener: any;
+  weight_sub: any;
 
   ngOnInit() {
     // this.http.post("http://localhost:3000/ros/createServer", {
@@ -53,67 +62,180 @@ export class HomePage {
       console.log(err);
     });
 
-    this.createRosTopics(this.renderer.setAttribute);
+    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, );
   }
 
-  createRosTopics(setAttribute) {
-    var settings_pub = new ROSLIB.Topic({
+  createRosTopics(image, x, y, z, weight, setAttribute) {
+    this.settings_pub = new ROSLIB.Topic({
       ros	: this.ros,
       name : '/settings',
       messageType : 'std_msgs/Bool'
     });
     //set up RBG image topic
-    var imageTopic = new ROSLIB.Topic({
+    this.imageTopic = new ROSLIB.Topic({
         ros : this.ros,
         name : '/Image',
         messageType : 'sensor_msgs/CompressedImage'
     });
     //set up trigger pub topic
-    var trigger_pub = new ROSLIB.Topic({
+    this.trigger_pub = new ROSLIB.Topic({
       ros	: this.ros,
       name : '/trigger',
       messageType : 'std_msgs/Bool'
     });
     //set up trigger sub topic
-    var trigger_sub = new ROSLIB.Topic({
+    this.trigger_sub = new ROSLIB.Topic({
       ros : this.ros,
       name : '/trigger',
       message_type : 'std_msgs/Bool'
     });
     //set up measurement sub topic
-    var listener = new ROSLIB.Topic({
+    this.listener = new ROSLIB.Topic({
       ros : this.ros,
       name : '/measurement',
-        messageType : 'realsense2_camera/measurement' //for using realsense
-        //messageType : 'astra_camera/measurement' //for using orbbec
-        // messageType : 'geometry_msgs/Point' //for testing
+        messageType : 'realsense2_camera/measurement'
     });
     //set up weight sub topic
-    var weight_sub = new ROSLIB.Topic({
+    this.weight_sub = new ROSLIB.Topic({
       ros : this.ros,
       name : '/weight',
       messageType : 'std_msgs/Float64'
     });
 
-    imageTopic.subscribe(function(message) {
+    this.imageTopic.subscribe(function(message) {
       var imageData = "data:image/jpg;base64," + message.data;
       var image = document.getElementById("sensor_image");
       setAttribute(image, "src", imageData);
-    })
+    });
+
+    this.trigger_sub.subscribe(function(message) {
+      var statusSection = document.getElementById("status-section");
+      var statusText = document.getElementById("status");
+      var referenceNum = document.getElementById("pro_number");
+
+      changeSectionColor("color-alt-blue");
+
+      statusText.innerHTML = "SCANNING";
+      
+      referenceNum.innerText = "";
+    });
+
+    this.weight_sub.subscribe(function(message) {
+      document.getElementById("weight").innerText = message.data.toFixed(2);
+    });
+
+    this.listener.subscribe(function(message) {
+      var statusSection = document.getElementById("status-section");
+      var statusText = document.getElementById("status");
+      var referenceNum = document.getElementById("pro_number");
+      var length = document.getElementById("length");
+      var width = document.getElementById("width");
+      var height = document.getElementById("height");
+
+      var M_Code = message.Code;
+
+      switch(M_Code) {
+        case 0:
+          this.changeSectionColor("color-green");
+
+          statusText.innerHTML = "READY";
+          this.resetData();
+          break;
+        case 1:
+          x = message.points.x;
+          y = message.points.y;
+          z = message.points.z;
+
+          image = document.getElementById("sensor-image");
+
+          var isRefChecked = true;
+
+          fullSend();
+
+          break;
+        case 2:
+          this.changeSectionColor("color-crimson");
+          statusText.innerHTML = "NO OBJECT DETECTED. REMOVED BOX";
+          this.resetData();
+          break;
+        case 3: 
+          this.changeSectionColor("color-crimson");
+          statusText.innerHTML = "BOUNDRY ERROR. REMOVE BOX";
+          this.resetData();
+          break;
+        case 4:
+          this.changeSectionColor("color-crimson");
+          statusText.innerHTML = "CENTER OBJECT ERROR. REMOVE BOX";
+          this.resetData();
+          break;
+        case 5:
+          this.changeSectionColor("color-green");
+          statusText.innerHTML = "READY";
+          this.resetData();
+          break;
+      }
+    });
+
+    function changeSectionColor(colorToShow) {
+      var statusSection = document.getElementById("status-section");
+  
+      statusSection.classList.remove("color-yellow");
+      statusSection.classList.remove("color-crimson");
+      statusSection.classList.remove("color-green");
+      statusSection.classList.remove("color-alt-blue");
+  
+      statusSection.classList.add(colorToShow);
+    }
+
+    function resetData() {
+      var length = document.getElementById("length");
+      var width = document.getElementById("width");
+      var height = document.getElementById("height");
+      var referenceNum = document.getElementById("pro_number");
+  
+      referenceNum.innerHTML = "";
+      length.innerHTML = "0";
+      width.innerHTML = "0";
+      height.innerHTML = "0";
+    }
+
+    function fullSend() {
+      var lengthElem = document.getElementById("length");
+      var widthElem = document.getElementById("width");
+      var heightElem = document.getElementById("height");
+      var weightElem = document.getElementById("weight");
+  
+      // var imgCpy = this.image;
+      var isSaveChecked = false;
+      var isRefChecked = true;
+      var fileName = "";
+  
+      if(isSaveChecked) {
+        if(isRefChecked) {
+          fileName = `images/${this.reference_number}_${Date.now()}.jpg`;
+        } else {
+          fileName = `images/${Date.now()}.jpg`;
+        }
+  
+        this.image = this.image.split(",")[1];
+        console.log(typeof(fileName));;
+        
+        //fs.write file here
+      }
+  
+      lengthElem.innerHTML = x;
+      widthElem.innerHTML = y;
+      heightElem.innerHTML = z;
+      weightElem.innerHTML = weight;
+    }
   }
 
+  scan() {
+    var trigger = new ROSLIB.Message({
+      data: true
+    });
 
-  scan(){
-    // var trigger_pub = new ROSLIB.Topic({
-    //   ros : this.ros,
-    //   name: "/trigger",
-    //   messageType : "/std_msgs/Bool"
-    // });
-
-    // var trigger = new ROSLIB.Message({
-    //   data : true
-    // })
-    // trigger_pub.publish(trigger)  
+    this.trigger_pub.publish(trigger);
   }
 
   showSettings() {
