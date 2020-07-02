@@ -28,7 +28,7 @@ export class HomePage {
   listener: any;
   weight_sub: any;
 
-  ngOnInit() {
+  async ngOnInit() {
     // this.http.post("http://localhost:3000/ros/createServer", {
     //   x: this.x,
     //   y: this.y,
@@ -38,7 +38,30 @@ export class HomePage {
     //   console.log("DONE!");
     // });
 
+    await this.setup();
     this.connectRos();
+  }
+
+  setup() {
+    changeSectionColor("color-yellow");
+    var statusText = document.getElementById("status");
+    statusText.innerHTML = "STARTING";
+    
+    setTimeout(function() {
+    changeSectionColor("color-green");
+      statusText.innerHTML = "READY";
+    }, 500);
+
+    function changeSectionColor(colorToShow) {
+      var statusSection = document.getElementById("status-section");
+  
+      statusSection.classList.remove("color-yellow");
+      statusSection.classList.remove("color-crimson");
+      statusSection.classList.remove("color-green");
+      statusSection.classList.remove("color-alt-blue");
+  
+      statusSection.classList.add(colorToShow);
+    }
   }
 
   connectRos() {
@@ -62,10 +85,21 @@ export class HomePage {
       console.log(err);
     });
 
-    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, );
+    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor);
   }
 
-  createRosTopics(image, x, y, z, weight, setAttribute) {
+  changeSectionColor(colorToShow) {
+    var statusSection = document.getElementById("status-section");
+
+    statusSection.classList.remove("color-yellow");
+    statusSection.classList.remove("color-crimson");
+    statusSection.classList.remove("color-green");
+    statusSection.classList.remove("color-alt-blue");
+
+    statusSection.classList.add(colorToShow);
+  }
+
+  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor) {
     this.settings_pub = new ROSLIB.Topic({
       ros	: this.ros,
       name : '/settings',
@@ -116,7 +150,6 @@ export class HomePage {
       changeSectionColor("color-alt-blue");
 
       statusText.innerHTML = "SCANNING";
-      
       referenceNum.innerText = "";
     });
 
@@ -168,24 +201,13 @@ export class HomePage {
           statusText.innerHTML = "CENTER OBJECT ERROR. REMOVE BOX";
           this.resetData();
           break;
-        case 5:
+        default:
           this.changeSectionColor("color-green");
           statusText.innerHTML = "READY";
           this.resetData();
           break;
       }
     });
-
-    function changeSectionColor(colorToShow) {
-      var statusSection = document.getElementById("status-section");
-  
-      statusSection.classList.remove("color-yellow");
-      statusSection.classList.remove("color-crimson");
-      statusSection.classList.remove("color-green");
-      statusSection.classList.remove("color-alt-blue");
-  
-      statusSection.classList.add(colorToShow);
-    }
 
     function resetData() {
       var length = document.getElementById("length");
@@ -204,7 +226,12 @@ export class HomePage {
       var widthElem = document.getElementById("width");
       var heightElem = document.getElementById("height");
       var weightElem = document.getElementById("weight");
-  
+      
+      var statusText = document.getElementById("status");
+
+      
+      statusText.innerHTML = "READY";
+      changeSectionColor("color-green")
       // var imgCpy = this.image;
       var isSaveChecked = false;
       var isRefChecked = true;
@@ -231,6 +258,8 @@ export class HomePage {
   }
 
   scan() {
+    var statusText = document.getElementById("status");
+
     var trigger = new ROSLIB.Message({
       data: true
     });
