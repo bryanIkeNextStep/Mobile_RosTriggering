@@ -16,7 +16,7 @@ export class HomePage {
   y: any;
   z: any;
   weight: any;
-  reference_number: 123;
+  reference_number: string = "";
 
   ros: any;
   image: any;
@@ -230,8 +230,8 @@ export class HomePage {
       var statusText = document.getElementById("status");
 
       
-      statusText.innerHTML = "READY";
-      changeSectionColor("color-green")
+      // statusText.innerHTML = "READY";
+      // changeSectionColor("color-green")
       // var imgCpy = this.image;
       var isSaveChecked = false;
       var isRefChecked = true;
@@ -254,6 +254,9 @@ export class HomePage {
       widthElem.innerHTML = y;
       heightElem.innerHTML = z;
       weightElem.innerHTML = weight;
+
+      statusText.innerHTML = "READY";
+      changeSectionColor("color-green")
     }
   }
 
