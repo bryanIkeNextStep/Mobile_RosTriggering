@@ -12,14 +12,14 @@
     <div class="content">
       <div id="home-section">
         <div class="input-field col s12">
-          <input id="pro_number" type="text" class="validate color-black black-text" [(ngModel)]="reference_number">
+          <input id="pro_number" type="text" class="validate color-black black-text" (change)="setRefNumber()" [(ngModel)]="reference_number">
           <label for="pro_number" class="pro-number-placeholder">PRO #</label>
         </div>
         <div id="status-section" class="status-section color-yellow">
           <p id="status">STARTING</p>
         </div>
         <div class="waves-effect waves-light btn screen-area">
-          <img class="sensor-image" id="sensor_image" src="" />
+          <img class="sensor-image" id="sensor-image" src="" />
         </div>
         <button class="waves-effect btn color-primary scan-btn" (click)="scan()">SCAN</button>
         <div class="measurement-section">
@@ -90,15 +90,15 @@
       <div class="checkbox-section">
         <ion-item color="primary">
           <ion-label>UPLOAD</ion-label>
-          <ion-checkbox color="primary" checked slot="start" checked="false"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkUploadSettings()" [(ngModel)]="uploadChecked"></ion-checkbox>
         </ion-item>
         <ion-item color="primary">
           <ion-label>REFERENCE NUMBER</ion-label>
-          <ion-checkbox color="primary" checked slot="start" checked="true"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkRefSettings()" [(ngModel)]="refChecked"></ion-checkbox>
         </ion-item>
         <ion-item color="primary">
           <ion-label>LOCAL SAVE</ion-label>
-          <ion-checkbox color="primary" checked slot="start" checked="false"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkLocalSaveSettings()" [(ngModel)]="localSaveChecked"></ion-checkbox>
         </ion-item>
       </div>
       <div class="input-section">

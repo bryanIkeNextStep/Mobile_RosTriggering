@@ -25,7 +25,6 @@
     "@ionic/angular": "^5.0.0",
     "cordova-android": "8.1.0",
     "eventemitter2": "^6.4.3",
-    "express": "^4.17.1",
     "roslib": "^1.1.0",
     "rxjs": "~6.5.1",
     "tslib": "^1.10.0",

@@ -3,6 +3,8 @@ import * as ROSLIB from 'roslib';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
+import { GlobalConstants } from '../common/global-constants';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -21,6 +23,10 @@ export class HomePage {
   ros: any;
   image: any;
 
+  uploadChecked: boolean;
+  refChecked: boolean;
+  localSaveChecked: boolean;
+
   settings_pub: any;
   imageTopic: any;
   trigger_pub: any;
@@ -38,8 +44,35 @@ export class HomePage {
     //   console.log("DONE!");
     // });
 
+    this.uploadChecked = GlobalConstants.isUploadChecked;
+    this.refChecked = GlobalConstants.isRefChecked;
+    this.localSaveChecked = GlobalConstants.isLocalSaveChecked
+
     await this.setup();
     this.connectRos();
+  }
+
+  checkUploadSettings() {
+    GlobalConstants.isUploadChecked = this.uploadChecked;
+    console.log(this.uploadChecked);
+    console.log(GlobalConstants.isUploadChecked);
+  }
+
+  checkRefSettings() {
+    GlobalConstants.isRefChecked = this.refChecked;
+    console.log(this.refChecked);
+    console.log(GlobalConstants.isRefChecked);
+  }
+
+  checkLocalSaveSettings() {
+    GlobalConstants.isLocalSaveChecked = this.localSaveChecked;
+    console.log(this.localSaveChecked);
+    console.log(GlobalConstants.isLocalSaveChecked);
+  }
+
+  setRefNumber() {
+    GlobalConstants.reference_number = this.reference_number;
+    console.log("Changed ref number to: " + this.reference_number);
   }
 
   setup() {
@@ -74,6 +107,7 @@ export class HomePage {
     // });
 
     this.ros = new ROSLIB.Ros();
+    // this.ros.connect('ws://192.168.0.196:9090');
     this.ros.connect('ws://192.168.0.190:9090');
 
     this.ros.on('connection', function() {
@@ -138,8 +172,8 @@ export class HomePage {
 
     this.imageTopic.subscribe(function(message) {
       var imageData = "data:image/jpg;base64," + message.data;
-      var image = document.getElementById("sensor_image");
-      setAttribute(image, "src", imageData);
+      var imageElem = document.getElementById("sensor-image");
+      setAttribute(imageElem, "src", imageData);
     });
 
     this.trigger_sub.subscribe(function(message) {
@@ -179,30 +213,28 @@ export class HomePage {
           y = message.points.y;
           z = message.points.z;
 
-          image = document.getElementById("sensor-image");
+          image = document.getElementById("sensor-image").getAttribute("src");
 
-          var isRefChecked = true;
-
-          fullSend();
+          fullSend(image);
 
           break;
         case 2:
-          this.changeSectionColor("color-crimson");
+          changeSectionColor("color-crimson");
           statusText.innerHTML = "NO OBJECT DETECTED. REMOVED BOX";
           this.resetData();
           break;
         case 3: 
-          this.changeSectionColor("color-crimson");
+          changeSectionColor("color-crimson");
           statusText.innerHTML = "BOUNDRY ERROR. REMOVE BOX";
           this.resetData();
           break;
         case 4:
-          this.changeSectionColor("color-crimson");
+          changeSectionColor("color-crimson");
           statusText.innerHTML = "CENTER OBJECT ERROR. REMOVE BOX";
           this.resetData();
           break;
         default:
-          this.changeSectionColor("color-green");
+          changeSectionColor("color-green");
           statusText.innerHTML = "READY";
           this.resetData();
           break;
@@ -221,7 +253,7 @@ export class HomePage {
       height.innerHTML = "0";
     }
 
-    function fullSend() {
+    function fullSend(image) {
       var lengthElem = document.getElementById("length");
       var widthElem = document.getElementById("width");
       var heightElem = document.getElementById("height");
@@ -229,25 +261,32 @@ export class HomePage {
       
       var statusText = document.getElementById("status");
 
-      
-      // statusText.innerHTML = "READY";
-      // changeSectionColor("color-green")
-      // var imgCpy = this.image;
-      var isSaveChecked = false;
-      var isRefChecked = true;
+      var isUploadChecked = GlobalConstants.isUploadChecked;
+      var isRefChecked = GlobalConstants.isRefChecked;
+      var isLocalSaveChecked = GlobalConstants.isLocalSaveChecked;
+
       var fileName = "";
   
-      if(isSaveChecked) {
+      console.log(`upload: ${isUploadChecked} ref: ${isRefChecked} local: ${isLocalSaveChecked}`);
+
+      if(isLocalSaveChecked) {
+        console.log("local save here");
+
         if(isRefChecked) {
           fileName = `images/${this.reference_number}_${Date.now()}.jpg`;
         } else {
           fileName = `images/${Date.now()}.jpg`;
         }
   
-        this.image = this.image.split(",")[1];
+        image = this.image.split(",")[1];
         console.log(typeof(fileName));;
         
         //fs.write file here
+      }
+      if(isUploadChecked) {
+        var base64_arr = [image];
+
+        uploadToServer(base64_arr, GlobalConstants.reference_number);
       }
   
       lengthElem.innerHTML = x;
@@ -258,10 +297,14 @@ export class HomePage {
       statusText.innerHTML = "READY";
       changeSectionColor("color-green")
     }
+
+    function uploadToServer(base64_arr, reference_number) {
+      console.log("upload");
+    }
   }
 
   scan() {
-    var statusText = document.getElementById("status");
+    console.log(GlobalConstants.isUploadChecked);
 
     var trigger = new ROSLIB.Message({
       data: true
