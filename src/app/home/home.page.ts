@@ -2,7 +2,6 @@ import { Component, Renderer2 } from '@angular/core';
 import * as ROSLIB from 'roslib';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-
 import { GlobalConstants } from '../common/global-constants';
 
 @Component({
@@ -12,7 +11,7 @@ import { GlobalConstants } from '../common/global-constants';
 })
 export class HomePage {
 
-  constructor(private http: HttpClient, private renderer: Renderer2) {}
+  constructor(private http: HttpClient, private renderer: Renderer2) { }
 
   x: any = 0;
   y: any;
@@ -79,20 +78,20 @@ export class HomePage {
     changeSectionColor("color-yellow");
     var statusText = document.getElementById("status");
     statusText.innerHTML = "STARTING";
-    
-    setTimeout(function() {
-    changeSectionColor("color-green");
+
+    setTimeout(function () {
+      changeSectionColor("color-green");
       statusText.innerHTML = "READY";
     }, 500);
 
     function changeSectionColor(colorToShow) {
       var statusSection = document.getElementById("status-section");
-  
+
       statusSection.classList.remove("color-yellow");
       statusSection.classList.remove("color-crimson");
       statusSection.classList.remove("color-green");
       statusSection.classList.remove("color-alt-blue");
-  
+
       statusSection.classList.add(colorToShow);
     }
   }
@@ -110,16 +109,16 @@ export class HomePage {
     // this.ros.connect('ws://192.168.0.196:9090');
     this.ros.connect('ws://192.168.0.190:9090');
 
-    this.ros.on('connection', function() {
+    this.ros.on('connection', function () {
       console.log("connected to websocket server")
     });
 
-    this.ros.on('error', function(err) {
+    this.ros.on('error', function (err) {
       console.log("error connecting to web socket server: ");
       console.log(err);
     });
 
-    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor);
+    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.http);
   }
 
   changeSectionColor(colorToShow) {
@@ -133,50 +132,50 @@ export class HomePage {
     statusSection.classList.add(colorToShow);
   }
 
-  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor) {
+  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, http) {
     this.settings_pub = new ROSLIB.Topic({
-      ros	: this.ros,
-      name : '/settings',
-      messageType : 'std_msgs/Bool'
+      ros: this.ros,
+      name: '/settings',
+      messageType: 'std_msgs/Bool'
     });
     //set up RBG image topic
     this.imageTopic = new ROSLIB.Topic({
-        ros : this.ros,
-        name : '/Image',
-        messageType : 'sensor_msgs/CompressedImage'
+      ros: this.ros,
+      name: '/Image',
+      messageType: 'sensor_msgs/CompressedImage'
     });
     //set up trigger pub topic
     this.trigger_pub = new ROSLIB.Topic({
-      ros	: this.ros,
-      name : '/trigger',
-      messageType : 'std_msgs/Bool'
+      ros: this.ros,
+      name: '/trigger',
+      messageType: 'std_msgs/Bool'
     });
     //set up trigger sub topic
     this.trigger_sub = new ROSLIB.Topic({
-      ros : this.ros,
-      name : '/trigger',
-      message_type : 'std_msgs/Bool'
+      ros: this.ros,
+      name: '/trigger',
+      message_type: 'std_msgs/Bool'
     });
     //set up measurement sub topic
     this.listener = new ROSLIB.Topic({
-      ros : this.ros,
-      name : '/measurement',
-        messageType : 'realsense2_camera/measurement'
+      ros: this.ros,
+      name: '/measurement',
+      messageType: 'realsense2_camera/measurement'
     });
     //set up weight sub topic
     this.weight_sub = new ROSLIB.Topic({
-      ros : this.ros,
-      name : '/weight',
-      messageType : 'std_msgs/Float64'
+      ros: this.ros,
+      name: '/weight',
+      messageType: 'std_msgs/Float64'
     });
 
-    this.imageTopic.subscribe(function(message) {
+    this.imageTopic.subscribe(function (message) {
       var imageData = "data:image/jpg;base64," + message.data;
       var imageElem = document.getElementById("sensor-image");
       setAttribute(imageElem, "src", imageData);
     });
 
-    this.trigger_sub.subscribe(function(message) {
+    this.trigger_sub.subscribe(function (message) {
       var statusSection = document.getElementById("status-section");
       var statusText = document.getElementById("status");
       var referenceNum = document.getElementById("pro_number");
@@ -187,11 +186,11 @@ export class HomePage {
       referenceNum.innerText = "";
     });
 
-    this.weight_sub.subscribe(function(message) {
+    this.weight_sub.subscribe(function (message) {
       document.getElementById("weight").innerText = message.data.toFixed(2);
     });
 
-    this.listener.subscribe(function(message) {
+    this.listener.subscribe(function (message) {
       var statusSection = document.getElementById("status-section");
       var statusText = document.getElementById("status");
       var referenceNum = document.getElementById("pro_number");
@@ -201,7 +200,7 @@ export class HomePage {
 
       var M_Code = message.Code;
 
-      switch(M_Code) {
+      switch (M_Code) {
         case 0:
           this.changeSectionColor("color-green");
 
@@ -215,7 +214,7 @@ export class HomePage {
 
           image = document.getElementById("sensor-image").getAttribute("src");
 
-          fullSend(image);
+          fullSend(image, http);
 
           break;
         case 2:
@@ -223,7 +222,7 @@ export class HomePage {
           statusText.innerHTML = "NO OBJECT DETECTED. REMOVED BOX";
           this.resetData();
           break;
-        case 3: 
+        case 3:
           changeSectionColor("color-crimson");
           statusText.innerHTML = "BOUNDRY ERROR. REMOVE BOX";
           this.resetData();
@@ -246,19 +245,19 @@ export class HomePage {
       var width = document.getElementById("width");
       var height = document.getElementById("height");
       var referenceNum = document.getElementById("pro_number");
-  
+
       referenceNum.innerHTML = "";
       length.innerHTML = "0";
       width.innerHTML = "0";
       height.innerHTML = "0";
     }
 
-    function fullSend(image) {
+    function fullSend(image, http) {
       var lengthElem = document.getElementById("length");
       var widthElem = document.getElementById("width");
       var heightElem = document.getElementById("height");
       var weightElem = document.getElementById("weight");
-      
+
       var statusText = document.getElementById("status");
 
       var isUploadChecked = GlobalConstants.isUploadChecked;
@@ -266,29 +265,29 @@ export class HomePage {
       var isLocalSaveChecked = GlobalConstants.isLocalSaveChecked;
 
       var fileName = "";
-  
+
       console.log(`upload: ${isUploadChecked} ref: ${isRefChecked} local: ${isLocalSaveChecked}`);
 
-      if(isLocalSaveChecked) {
+      if (isLocalSaveChecked) {
         console.log("local save here");
 
-        if(isRefChecked) {
+        if (isRefChecked) {
           fileName = `images/${this.reference_number}_${Date.now()}.jpg`;
         } else {
           fileName = `images/${Date.now()}.jpg`;
         }
-  
+
         image = this.image.split(",")[1];
-        console.log(typeof(fileName));;
-        
+        console.log(typeof (fileName));;
+
         //fs.write file here
       }
-      if(isUploadChecked) {
+      if (isUploadChecked) {
         var base64_arr = [image];
 
-        uploadToServer(base64_arr, GlobalConstants.reference_number);
+        uploadToServer(base64_arr, GlobalConstants.reference_number, http);
       }
-  
+
       lengthElem.innerHTML = x;
       widthElem.innerHTML = y;
       heightElem.innerHTML = z;
@@ -298,8 +297,49 @@ export class HomePage {
       changeSectionColor("color-green")
     }
 
-    function uploadToServer(base64_arr, reference_number) {
+    function uploadToServer(base64_arr, reference_number, http) {
       console.log("upload");
+
+      var data = {
+        company_id: 603,
+        user_id: 1043,
+        pro_number: 12345216,
+        base64: [],
+        weight: 1,
+        width: 1,
+        len: 1,
+        height: 1,
+        scanned_terminal_id: -1,
+        scanner_id: -1
+      }
+
+      http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
+        "Access-Control-Allow-Origin": "*",
+        "Accept": "application/x-www-form-urlencoded",
+        "Content-Type": "application/x-www-form-urlencoded"
+      }).subscribe((result) => {
+        console.log("DONE!");
+      })
+
+      // http.post("https://r6on410fg2.execute-api.us-east-1.amazonaws.com/prod/addshipment", 
+      //   {
+      //     company_id: 603,
+      //     user_id: "alex@test.com",
+      //     pro_number: reference_number,
+      //     base64: base64_arr,
+      //     weight: 1,
+      //     width: 1,
+      //     len: 1,
+      //     height: 1
+      //   }, 
+      //   {
+      //     "Access-Control-Allow-Origin": "*",
+      //     "Accept": "application/x-www-form-urlencoded",
+      //     "Content-Type": "application/x-www-form-urlencoded"
+      //   }
+      // ).subscribe((data) => {
+      //   console.log("DONE!");
+      // });
     }
   }
 
@@ -339,13 +379,13 @@ export class HomePage {
     camera.classList.add("hide");
     scale.classList.add("hide");
 
-    if(pageToShow === "upload"){
+    if (pageToShow === "upload") {
       settingsTitle.innerHTML = "CLOUD SETTINGS";
     }
-    else if(pageToShow === "camera"){
+    else if (pageToShow === "camera") {
       settingsTitle.innerHTML = "CAMERA SETTINGS";
     }
-    else if(pageToShow === "scale"){
+    else if (pageToShow === "scale") {
       settingsTitle.innerHTML = "SCALE SETTINGS";
     }
 
