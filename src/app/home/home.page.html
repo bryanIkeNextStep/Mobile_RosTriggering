@@ -105,26 +105,26 @@
         <div class="row">
           <div class="col s6">
             <ion-label position="floating">User ID</ion-label>
-            <ion-input></ion-input>
+            <ion-input [(ngModel)]="settings_userId"></ion-input>
           </div>
           <div class="col s6">
             <ion-label position="floating">Company ID</ion-label>
-            <ion-input></ion-input>
+            <ion-input [(ngModel)]="settings_companyId"></ion-input>
           </div>
           <div class="col s6">
             <ion-label position="floating">Terminal ID</ion-label>
-            <ion-input></ion-input>
+            <ion-input [(ngModel)]="settings_terminalId"></ion-input>
           </div>
           <div class="col s6">
             <ion-label position="floating">Scanner ID</ion-label>
-            <ion-input></ion-input>
+            <ion-input [(ngModel)]="settings_scannerId"></ion-input>
           </div>
         </div>
         <div class="container">
           <ion-label position="floating">Company Name</ion-label>
-          <ion-input></ion-input>
-          <button class="waves-effect btn color-primary settings-btn">SAVE CONFIGURATION</button>
-          <button class="waves-effect btn color-grey settings-btn">CANCEL</button>
+          <ion-input [(ngModel)]="settings_companyName"></ion-input>
+          <button class="waves-effect btn color-primary settings-btn" (click)="saveSettings()">SAVE CONFIGURATION</button>
+          <button class="waves-effect btn color-grey settings-btn" (click)="cancelSettings()">CANCEL</button>
         </div>
       </div>
     </div>

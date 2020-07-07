@@ -3,6 +3,11 @@ import * as ROSLIB from 'roslib';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { GlobalConstants } from '../common/global-constants';
+import { Plugins } from '@capacitor/core';
+import { AlertController } from '@ionic/angular';
+
+const { Storage } = Plugins;
+
 
 @Component({
   selector: 'app-home',
@@ -11,21 +16,32 @@ import { GlobalConstants } from '../common/global-constants';
 })
 export class HomePage {
 
-  constructor(private http: HttpClient, private renderer: Renderer2) { }
+  constructor(private http: HttpClient, private renderer: Renderer2, private alertCtrl: AlertController) { }
 
+  //measurements vars
   x: any = 0;
   y: any;
   z: any;
   weight: any;
   reference_number: string = "";
 
-  ros: any;
-  image: any;
-
+  //upload settings check vars
   uploadChecked: boolean;
   refChecked: boolean;
   localSaveChecked: boolean;
 
+  //upload user info vars
+  settings_userId: string = "";
+  settings_companyId: string = "";
+  settings_terminalId: string = "";
+  settings_scannerId: string = "";
+  settings_companyName: string = "";
+
+  //public ros vars
+  ros: any;
+  image: any;
+
+  //ros listener vars
   settings_pub: any;
   imageTopic: any;
   trigger_pub: any;
@@ -48,6 +64,16 @@ export class HomePage {
     this.localSaveChecked = GlobalConstants.isLocalSaveChecked
 
     await this.setup();
+
+  const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
+    var settings = JSON.parse(value);
+
+    this.settings_userId = settings.userId;
+    this.settings_companyId = settings.companyId;
+    this.settings_terminalId = settings.terminalId;
+    this.settings_scannerId = settings.scannerId;
+    this.settings_companyName = settings.companyName;
+
     this.connectRos();
   }
 
@@ -319,27 +345,7 @@ export class HomePage {
         "Content-Type": "application/x-www-form-urlencoded"
       }).subscribe((result) => {
         console.log("DONE!");
-      })
-
-      // http.post("https://r6on410fg2.execute-api.us-east-1.amazonaws.com/prod/addshipment", 
-      //   {
-      //     company_id: 603,
-      //     user_id: "alex@test.com",
-      //     pro_number: reference_number,
-      //     base64: base64_arr,
-      //     weight: 1,
-      //     width: 1,
-      //     len: 1,
-      //     height: 1
-      //   }, 
-      //   {
-      //     "Access-Control-Allow-Origin": "*",
-      //     "Accept": "application/x-www-form-urlencoded",
-      //     "Content-Type": "application/x-www-form-urlencoded"
-      //   }
-      // ).subscribe((data) => {
-      //   console.log("DONE!");
-      // });
+      });
     }
   }
 
@@ -391,5 +397,40 @@ export class HomePage {
 
     var elementToShow = document.getElementById(`setting-content-${pageToShow}`);
     elementToShow.classList.remove("hide");;
+  }
+
+  async saveSettings() {
+    console.log(`user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
+
+    var settings = {
+      userId: this.settings_userId,
+      companyId: this.settings_companyId,
+      terminalId: this.settings_terminalId,
+      scannerId: this.settings_scannerId,
+      companyName: this.settings_companyName
+    }
+
+    await Storage.set({
+      key: "fs_ros_userSettings",
+      value: JSON.stringify(settings)
+    });
+
+    var newAlert = this.alertCtrl.create({
+      message: "Settings Saved!",
+      buttons: [
+        {
+          text: "OK",
+          handler: async () => {
+            return (await newAlert).dismiss();
+          }
+        }
+      ]
+    });
+
+    return (await newAlert).present();
+  }
+
+  cancelSettings() {
+    this.showHome();
   }
 }
