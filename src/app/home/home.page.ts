@@ -8,7 +8,6 @@ import { AlertController } from '@ionic/angular';
 
 const { Storage } = Plugins;
 
-
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -24,6 +23,8 @@ export class HomePage {
   z: any;
   weight: any;
   reference_number: string = "";
+
+  ipAddress: string = "";
 
   //upload settings check vars
   uploadChecked: boolean;
@@ -50,31 +51,26 @@ export class HomePage {
   weight_sub: any;
 
   async ngOnInit() {
-    // this.http.post("http://localhost:3000/ros/createServer", {
-    //   x: this.x,
-    //   y: this.y,
-    //   z: this.z,
-    //   weight: this.weight
-    // }).subscribe((data) => {
-    //   console.log("DONE!");
-    // });
-
     this.uploadChecked = GlobalConstants.isUploadChecked;
     this.refChecked = GlobalConstants.isRefChecked;
     this.localSaveChecked = GlobalConstants.isLocalSaveChecked
 
     await this.setup();
+    await this.getUserSettings();
 
-  const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
+    this.connectRos();
+  }
+
+  async getUserSettings() {
+    const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
     var settings = JSON.parse(value);
 
+    this.ipAddress = settings.ipAddress;
     this.settings_userId = settings.userId;
     this.settings_companyId = settings.companyId;
     this.settings_terminalId = settings.terminalId;
     this.settings_scannerId = settings.scannerId;
     this.settings_companyName = settings.companyName;
-
-    this.connectRos();
   }
 
   checkUploadSettings() {
@@ -123,17 +119,11 @@ export class HomePage {
   }
 
   connectRos() {
-    // this.http.get("https://freightsnap-proto.herokuapp.com/ros/connectWS/192.168.0.190").subscribe((data) => {
-    //   console.log("DONE!");
-    // });
-
-    // this.http.get("http://localhost:3000/ros/connectWS/192.168.0.190").subscribe((data) => {
-    //   console.log("DONE!");
-    // });
-
     this.ros = new ROSLIB.Ros();
+    //Raspberry Pi connection
     // this.ros.connect('ws://192.168.0.196:9090');
-    this.ros.connect('ws://192.168.0.190:9090');
+
+    this.ros.connect(`ws://${this.ipAddress}:9090`);
 
     this.ros.on('connection', function () {
       console.log("connected to websocket server")
@@ -144,7 +134,7 @@ export class HomePage {
       console.log(err);
     });
 
-    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.http);
+    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.getUserSettings, this.http);
   }
 
   changeSectionColor(colorToShow) {
@@ -158,7 +148,7 @@ export class HomePage {
     statusSection.classList.add(colorToShow);
   }
 
-  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, http) {
+  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, getUserSettings, http) {
     this.settings_pub = new ROSLIB.Topic({
       ros: this.ros,
       name: '/settings',
@@ -311,7 +301,7 @@ export class HomePage {
       if (isUploadChecked) {
         var base64_arr = [image];
 
-        uploadToServer(base64_arr, GlobalConstants.reference_number, http);
+        uploadToServer(getUserSettings, base64_arr, GlobalConstants.reference_number, http);
       }
 
       lengthElem.innerHTML = x;
@@ -323,8 +313,12 @@ export class HomePage {
       changeSectionColor("color-green")
     }
 
-    function uploadToServer(base64_arr, reference_number, http) {
+    async function uploadToServer(getUserSettings, base64_arr, reference_number, http) {
       console.log("upload");
+
+      getUserSettings();
+
+      console.log("done");
 
       var data = {
         company_id: 603,
@@ -339,13 +333,13 @@ export class HomePage {
         scanner_id: -1
       }
 
-      http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
-        "Access-Control-Allow-Origin": "*",
-        "Accept": "application/x-www-form-urlencoded",
-        "Content-Type": "application/x-www-form-urlencoded"
-      }).subscribe((result) => {
-        console.log("DONE!");
-      });
+      // http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
+      //   "Access-Control-Allow-Origin": "*",
+      //   "Accept": "application/x-www-form-urlencoded",
+      //   "Content-Type": "application/x-www-form-urlencoded"
+      // }).subscribe((result) => {
+      //   console.log("DONE!");
+      // });
     }
   }
 
@@ -400,9 +394,10 @@ export class HomePage {
   }
 
   async saveSettings() {
-    console.log(`user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
+    console.log(`ipAddress: ${this.ipAddress} user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
 
     var settings = {
+      ipAddress: this.ipAddress,
       userId: this.settings_userId,
       companyId: this.settings_companyId,
       terminalId: this.settings_terminalId,
