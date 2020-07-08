@@ -4,7 +4,7 @@ import * as ROSLIB from 'roslib';
 import { HttpClient } from '@angular/common/http';
 import { GlobalConstants } from '../common/global-constants';
 import { Plugins } from '@capacitor/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, LoadingController } from '@ionic/angular';
 
 const { Storage } = Plugins;
 
@@ -15,7 +15,7 @@ const { Storage } = Plugins;
 })
 export class HomePage {
 
-  constructor(private http: HttpClient, private renderer: Renderer2, private alertCtrl: AlertController) { }
+  constructor(private http: HttpClient, private renderer: Renderer2, private alertCtrl: AlertController, private loadingCtrl: LoadingController) { }
 
   //measurements vars
   x: any = 0;
@@ -141,7 +141,7 @@ export class HomePage {
       console.log(err);
     });
 
-    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.getUserSettings, this.http);
+    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.getUserSettings, this.http, this.loadingCtrl, this.alertCtrl);
   }
 
   changeSectionColor(colorToShow) {
@@ -155,7 +155,7 @@ export class HomePage {
     statusSection.classList.add(colorToShow);
   }
 
-  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, getUserSettings, http) {
+  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, getUserSettings, http, loadingCtrl, alertCtrl) {
     this.settings_pub = new ROSLIB.Topic({
       ros: this.ros,
       name: '/settings',
@@ -275,7 +275,7 @@ export class HomePage {
       height.innerHTML = "0";
     }
 
-    function fullSend(image, http) {
+    async function fullSend(image, http) {
       var lengthElem = document.getElementById("length");
       var widthElem = document.getElementById("width");
       var heightElem = document.getElementById("height");
@@ -308,7 +308,7 @@ export class HomePage {
       if (isUploadChecked) {
         var base64_arr = [image];
 
-        uploadToServer(getUserSettings, base64_arr, GlobalConstants.reference_number, http);
+        uploadToServer(getUserSettings, base64_arr, GlobalConstants.reference_number, http, loadingCtrl, alertCtrl);
       }
 
       lengthElem.innerHTML = x;
@@ -320,52 +320,60 @@ export class HomePage {
       changeSectionColor("color-green")
     }
 
-    async function uploadToServer(getUserSettings, base64_arr, reference_number, http) {
-      console.log("upload");
+    async function uploadToServer(getUserSettings, base64_arr, reference_number, http, loadingCtrl, alertCtrl) {
+      var loader = await loadingCtrl.create({
+        message: "Uploading Scan"
+      });
+
+      await loader.present();
 
       getUserSettings();
 
-      console.log("done");
+      var length = parseInt(document.getElementById("length").innerHTML).toFixed();
+      var width = parseInt(document.getElementById("width").innerHTML).toFixed();
+      var height = parseInt(document.getElementById("height").innerHTML).toFixed();
+      var weight = parseInt(document.getElementById("weight").innerHTML).toFixed();
 
       var data = {
         company_id: GlobalConstants.settings_companyId,
         user_id: GlobalConstants.settings_companyId,
         pro_number: reference_number,
         base64: base64_arr,
-        weight: 1,
-        width: 1,
-        len: 1,
-        height: 1,
+        weight: weight,
+        width: width,
+        len: length,
+        height: height,
         scanned_terminal_id: -1,
         scanner_id: -1
       }
-
-      console.log(data);
-
-
-      // http.post("http://localhost:3000/addShipment", data, {
-      //   "Access-Control-Allow-Origin": "http://localhost:8100",
-      //   "Access-Control-Allow-Credentials": "true",
-      //   "Accept": "application/x-www-form-urlencoded",
-      //   "Content-Type": "application/x-www-form-urlencoded"
-      // }).subscribe((result) => {
-      //   console.log("DONE!");
-      // });
 
       http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
         "Access-Control-Allow-Origin": "http://localhost:8100",
         "Access-Control-Allow-Credentials": "true",
         "Accept": "application/x-www-form-urlencoded",
         "Content-Type": "application/x-www-form-urlencoded"
-      }).subscribe((result) => {
+      }).subscribe(async (result) => {
         console.log("DONE!");
+        await loader.dismiss();
+
+        var uploadAlert = await alertCtrl.create({
+          message: "Scan Was Uploaded!",
+          buttons: [
+            {
+              text: "OK",
+              handler: async () => {
+                return (await uploadAlert).dismiss();
+              }
+            }
+          ]
+        });
+        
+        return (await uploadAlert).present();
       });
     }
   }
 
-  scan() {
-    console.log(GlobalConstants.isUploadChecked);
-
+  async scan() {
     var trigger = new ROSLIB.Message({
       data: true
     });
