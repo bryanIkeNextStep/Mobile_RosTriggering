@@ -1,7 +1,7 @@
 import { Component, Renderer2 } from '@angular/core';
 import * as ROSLIB from 'roslib';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { GlobalConstants } from '../common/global-constants';
 import { Plugins } from '@capacitor/core';
 import { AlertController } from '@ionic/angular';
@@ -31,7 +31,7 @@ export class HomePage {
   refChecked: boolean;
   localSaveChecked: boolean;
 
-  //upload user info vars
+  // //upload user info vars
   settings_userId: string = "";
   settings_companyId: string = "";
   settings_terminalId: string = "";
@@ -58,6 +58,13 @@ export class HomePage {
     await this.setup();
     await this.getUserSettings();
 
+    this.ipAddress = GlobalConstants.ipAddress;
+    this.settings_userId = GlobalConstants.settings_userId;
+    this.settings_companyId = GlobalConstants.settings_companyId;
+    this.settings_terminalId = GlobalConstants.settings_terminalId;
+    this.settings_scannerId = GlobalConstants.settings_scannerId;
+    this.settings_companyName = GlobalConstants.settings_companyName;
+
     this.connectRos();
   }
 
@@ -65,12 +72,12 @@ export class HomePage {
     const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
     var settings = JSON.parse(value);
 
-    this.ipAddress = settings.ipAddress;
-    this.settings_userId = settings.userId;
-    this.settings_companyId = settings.companyId;
-    this.settings_terminalId = settings.terminalId;
-    this.settings_scannerId = settings.scannerId;
-    this.settings_companyName = settings.companyName;
+    GlobalConstants.ipAddress = settings.ipAddress;
+    GlobalConstants.settings_userId = settings.userId;
+    GlobalConstants.settings_companyId = settings.companyId;
+    GlobalConstants.settings_terminalId = settings.terminalId;
+    GlobalConstants.settings_scannerId = settings.scannerId;
+    GlobalConstants.settings_companyName = settings.companyName;
   }
 
   checkUploadSettings() {
@@ -321,10 +328,10 @@ export class HomePage {
       console.log("done");
 
       var data = {
-        company_id: 603,
-        user_id: 1043,
-        pro_number: 12345216,
-        base64: [],
+        company_id: GlobalConstants.settings_companyId,
+        user_id: GlobalConstants.settings_companyId,
+        pro_number: reference_number,
+        base64: base64_arr,
         weight: 1,
         width: 1,
         len: 1,
@@ -333,13 +340,26 @@ export class HomePage {
         scanner_id: -1
       }
 
-      // http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
-      //   "Access-Control-Allow-Origin": "*",
+      console.log(data);
+
+
+      // http.post("http://localhost:3000/addShipment", data, {
+      //   "Access-Control-Allow-Origin": "http://localhost:8100",
+      //   "Access-Control-Allow-Credentials": "true",
       //   "Accept": "application/x-www-form-urlencoded",
       //   "Content-Type": "application/x-www-form-urlencoded"
       // }).subscribe((result) => {
       //   console.log("DONE!");
       // });
+
+      http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
+        "Access-Control-Allow-Origin": "http://localhost:8100",
+        "Access-Control-Allow-Credentials": "true",
+        "Accept": "application/x-www-form-urlencoded",
+        "Content-Type": "application/x-www-form-urlencoded"
+      }).subscribe((result) => {
+        console.log("DONE!");
+      });
     }
   }
 
@@ -421,6 +441,8 @@ export class HomePage {
         }
       ]
     });
+
+    this.getUserSettings();
 
     return (await newAlert).present();
   }
