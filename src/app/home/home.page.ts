@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { GlobalConstants } from '../common/global-constants';
 import { Plugins } from '@capacitor/core';
 import { AlertController, LoadingController } from '@ionic/angular';
+import { BarcodeScanner, BarcodeScannerOptions } from '@ionic-native/barcode-scanner/ngx';
 
 const { Storage } = Plugins;
 
@@ -15,7 +16,7 @@ const { Storage } = Plugins;
 })
 export class HomePage {
 
-  constructor(private http: HttpClient, private renderer: Renderer2, private alertCtrl: AlertController, private loadingCtrl: LoadingController) { }
+  constructor(private barcodeCtrl: BarcodeScanner, private http: HttpClient, private renderer: Renderer2, private alertCtrl: AlertController, private loadingCtrl: LoadingController) { }
 
   //measurements vars
   x: any = 0;
@@ -334,6 +335,8 @@ export class HomePage {
       var height = parseInt(document.getElementById("height").innerHTML).toFixed();
       var weight = parseInt(document.getElementById("weight").innerHTML).toFixed();
 
+      console.log("ref_num: " + reference_number);
+
       var data = {
         company_id: GlobalConstants.settings_companyId,
         user_id: GlobalConstants.settings_companyId,
@@ -457,5 +460,26 @@ export class HomePage {
 
   cancelSettings() {
     this.showHome();
+  }
+
+  barcodeScan() {
+    const options: BarcodeScannerOptions = {
+      preferFrontCamera: false,
+      showFlipCameraButton: true,
+      showTorchButton: true,
+      torchOn: false,
+      prompt: 'Place a barcode inside the scan area',
+      resultDisplayDuration: 500,
+      formats: 'PDF_417,CODABAR,EAN_8,UPC_A,UPC_E,EAN_8,EAN_13,CODE_39,CODE_93,CODE_128,',
+      orientation: 'portrait'
+    };
+
+    this.barcodeCtrl.scan(options).then(barcodeData => {
+      this.reference_number = barcodeData.text;
+
+      GlobalConstants.reference_number = this.reference_number;
+    }).catch(err => {
+      alert(err);
+    });
   }
 }

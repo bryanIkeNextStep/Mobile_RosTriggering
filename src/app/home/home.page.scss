@@ -36,6 +36,29 @@
   margin-right: 10px;
 }
 
+// .barcode-btn-section {
+//   margin-top: 20px;
+//   height: 50px;
+// }
+
+.barcode-btn {
+  position: relative;
+  top: 25px;
+  margin-top: 20px;
+  height: 50px;
+  width: 50px;
+  border-radius: 50px;
+  font-size: 40px;
+}
+
+.barcode-icon {
+  color: white;
+  text-align: center;
+  position: relative;
+  top: 2px;
+  right: 10px;
+}
+
 .mt-1 {
   margin-top: 5px;
 }
@@ -147,6 +170,10 @@
 
 .right {
   float: right;
+}
+
+.bold {
+  font-weight: bold;
 }
 
 .hide {

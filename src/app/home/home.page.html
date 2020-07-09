@@ -11,10 +11,27 @@
     </div>
     <div class="content">
       <div id="home-section">
-        <div class="input-field col s12">
-          <input id="pro_number" type="text" class="validate color-black black-text" (change)="setRefNumber()" [(ngModel)]="reference_number">
-          <label for="pro_number" class="pro-number-placeholder">PRO #</label>
+        <div class="row">
+          <div class="input-field col s10">
+            <!-- <ion-label position="floating">PRO #</ion-label>
+            <ion-input id="pro_number" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input> -->
+
+            <ion-label class="pro-number-placeholder" position="stacked">PRO #</ion-label>
+            <ion-input id="pro-number" placeholder="Type Or Scan" required type="text" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input>
+
+
+            <!-- <ion-label position="floating" class="pro-number-placeholder">PRO #<Address></Address></ion-label>
+            <ion-input id="pro_number" class="validate color-black black-text bold" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input> -->
+
+            <!-- <input id="pro_number" type="text" class="validate color-black black-text" (change)="setRefNumber()" [(ngModel)]="reference_number">
+            <label for="pro_number" class="pro-number-placeholder">PRO #</label> -->
+          </div>
+          <button class="waves-effect btn barcode-btn color-primary" (click)="barcodeScan()">
+            <ion-icon name="barcode-outline" class="barcode-icon"></ion-icon>
+          </button>
         </div>
+
+
         <div id="status-section" class="status-section color-yellow">
           <p id="status">STARTING</p>
         </div>
@@ -90,21 +107,25 @@
       <div class="checkbox-section">
         <ion-item color="primary">
           <ion-label>UPLOAD</ion-label>
-          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkUploadSettings()" [(ngModel)]="uploadChecked"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkUploadSettings()"
+            [(ngModel)]="uploadChecked"></ion-checkbox>
         </ion-item>
         <ion-item color="primary">
           <ion-label>REFERENCE NUMBER</ion-label>
-          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkRefSettings()" [(ngModel)]="refChecked"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkRefSettings()" [(ngModel)]="refChecked">
+          </ion-checkbox>
         </ion-item>
         <ion-item color="primary">
           <ion-label>LOCAL SAVE</ion-label>
-          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkLocalSaveSettings()" [(ngModel)]="localSaveChecked"></ion-checkbox>
+          <ion-checkbox color="primary" checked slot="start" (ionChange)="checkLocalSaveSettings()"
+            [(ngModel)]="localSaveChecked"></ion-checkbox>
         </ion-item>
       </div>
       <div class="input-section">
         <div class="row">
           <div class="container">
-            <ion-label position="floating">IP Address<Address></Address></ion-label>
+            <ion-label position="floating">IP Address<Address></Address>
+            </ion-label>
             <ion-input placeholder="EX: 192.168.0.190" [(ngModel)]="ipAddress"></ion-input>
           </div>
           <div class="col s6">
@@ -135,7 +156,8 @@
         <div class="container pb-2">
           <ion-label position="floating">Company Name</ion-label>
           <ion-input [(ngModel)]="settings_companyName"></ion-input>
-          <button class="waves-effect btn color-primary settings-btn" (click)="saveSettings()">SAVE CONFIGURATION</button>
+          <button class="waves-effect btn color-primary settings-btn" (click)="saveSettings()">SAVE
+            CONFIGURATION</button>
           <button class="waves-effect btn color-grey settings-btn" (click)="cancelSettings()">CANCEL</button>
         </div>
       </div>
