@@ -364,10 +364,19 @@ export class HomePage {
 
       console.log("ref_num: " + reference_number);
 
+      var proNum;
+
+      if(GlobalConstants.isRefChecked) {
+        proNum = reference_number;
+      }
+      else {
+        proNum = "0";
+      }
+
       var data = {
         company_id: GlobalConstants.settings_companyId,
-        user_id: GlobalConstants.settings_companyId,
-        pro_number: reference_number,
+        user_id: GlobalConstants.settings_userId,
+        pro_number: proNum,
         base64: base64_arr,
         weight: weight,
         width: width,
@@ -376,6 +385,8 @@ export class HomePage {
         scanned_terminal_id: -1,
         scanner_id: -1
       }
+
+      console.log(data);
 
       http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
         "Access-Control-Allow-Origin": "http://localhost:8100",
