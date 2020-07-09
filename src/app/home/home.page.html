@@ -11,20 +11,10 @@
     </div>
     <div class="content">
       <div id="home-section">
-        <div class="row">
+        <div id="reference-number-section" class="row">
           <div class="input-field col s10">
-            <!-- <ion-label position="floating">PRO #</ion-label>
-            <ion-input id="pro_number" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input> -->
-
-            <ion-label class="pro-number-placeholder" position="stacked">PRO #</ion-label>
+            <ion-label class="pro-number-placeholder bold" position="stacked">PRO #</ion-label>
             <ion-input id="pro-number" placeholder="Type Or Scan" required type="text" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input>
-
-
-            <!-- <ion-label position="floating" class="pro-number-placeholder">PRO #<Address></Address></ion-label>
-            <ion-input id="pro_number" class="validate color-black black-text bold" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input> -->
-
-            <!-- <input id="pro_number" type="text" class="validate color-black black-text" (change)="setRefNumber()" [(ngModel)]="reference_number">
-            <label for="pro_number" class="pro-number-placeholder">PRO #</label> -->
           </div>
           <button class="waves-effect btn barcode-btn color-primary" (click)="barcodeScan()">
             <ion-icon name="barcode-outline" class="barcode-icon"></ion-icon>

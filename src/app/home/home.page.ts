@@ -52,12 +52,26 @@ export class HomePage {
   weight_sub: any;
 
   async ngOnInit() {
+    GlobalConstants.reference_number = "";
+
+    await this.setup();
+    await this.getUserSettings();
+
     this.uploadChecked = GlobalConstants.isUploadChecked;
     this.refChecked = GlobalConstants.isRefChecked;
     this.localSaveChecked = GlobalConstants.isLocalSaveChecked
 
-    await this.setup();
-    await this.getUserSettings();
+    var refSection = document.getElementById("reference-number-section");
+
+    if(this.refChecked) {
+      refSection.classList.remove("hide");
+      refSection.classList.add("show");
+    }
+    else if(this.refChecked == false) {
+
+      refSection.classList.add("hide");
+      refSection.classList.remove("show");
+    }
 
     this.ipAddress = GlobalConstants.ipAddress;
     this.settings_userId = GlobalConstants.settings_userId;
@@ -72,6 +86,10 @@ export class HomePage {
   async getUserSettings() {
     const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
     var settings = JSON.parse(value);
+
+    GlobalConstants.isUploadChecked = settings.upload;
+    GlobalConstants.isRefChecked = settings.refNum;
+    GlobalConstants.isLocalSaveChecked = settings.localSave;
 
     GlobalConstants.ipAddress = settings.ipAddress;
     GlobalConstants.settings_userId = settings.userId;
@@ -91,6 +109,17 @@ export class HomePage {
     GlobalConstants.isRefChecked = this.refChecked;
     console.log(this.refChecked);
     console.log(GlobalConstants.isRefChecked);
+
+    var reference_number = document.getElementById("reference-number-section");
+
+    if(GlobalConstants.isRefChecked) {
+      reference_number.classList.remove("hide");
+      reference_number.classList.add("show");
+    }
+    else if(GlobalConstants.isRefChecked == false) {
+      reference_number.classList.add("hide");
+      reference_number.classList.remove("show");
+    }
   }
 
   checkLocalSaveSettings() {
@@ -202,12 +231,10 @@ export class HomePage {
     this.trigger_sub.subscribe(function (message) {
       var statusSection = document.getElementById("status-section");
       var statusText = document.getElementById("status");
-      var referenceNum = document.getElementById("pro_number");
 
       changeSectionColor("color-alt-blue");
 
       statusText.innerHTML = "SCANNING";
-      referenceNum.innerText = "";
     });
 
     this.weight_sub.subscribe(function (message) {
@@ -428,6 +455,9 @@ export class HomePage {
     console.log(`ipAddress: ${this.ipAddress} user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
 
     var settings = {
+      upload: this.uploadChecked,
+      refNum: this.refChecked,
+      localSave: this.localSaveChecked,
       ipAddress: this.ipAddress,
       userId: this.settings_userId,
       companyId: this.settings_companyId,
@@ -435,6 +465,8 @@ export class HomePage {
       scannerId: this.settings_scannerId,
       companyName: this.settings_companyName
     }
+
+    console.log(settings);
 
     await Storage.set({
       key: "fs_ros_userSettings",

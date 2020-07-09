@@ -36,10 +36,18 @@
   margin-right: 10px;
 }
 
-// .barcode-btn-section {
-//   margin-top: 20px;
-//   height: 50px;
-// }
+@media screen and (min-width: 520px) {
+  .barcode-btn {
+    display: none;
+    position: relative;
+    top: 25px;
+    margin-top: 20px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50px;
+    font-size: 40px;
+  }
+}
 
 .barcode-btn {
   position: relative;
@@ -102,6 +110,10 @@
   background-color: crimson;
 }
 
+.border-red {
+  border: 5px solid red;
+}
+
 .pro-number-placeholder {
   color: black;
   font-size: 30px;
@@ -158,6 +170,10 @@
 
 .white-text {
   color: white;
+}
+
+.red-text {
+  color: crimson;
 }
 
 .md-font-size {
