@@ -14,7 +14,8 @@
         <div id="reference-number-section" class="row">
           <div class="input-field col s10">
             <ion-label class="pro-number-placeholder bold" position="stacked">PRO #</ion-label>
-            <ion-input id="pro-number" placeholder="Type Or Scan" required type="text" (change)="setRefNumber()" [(ngModel)]="reference_number"></ion-input>
+            <ion-input id="pro-number" placeholder="Type Or Scan" required type="text" (change)="setRefNumber()"
+              [(ngModel)]="reference_number"></ion-input>
           </div>
           <button class="waves-effect btn barcode-btn color-primary" (click)="barcodeScan()">
             <ion-icon name="barcode-outline" class="barcode-icon"></ion-icon>
@@ -85,9 +86,9 @@
   <div id="settings-section" class="settings-section hide">
     <div class="setting-header white-text color-secondary">
       <div class="left">
-        <p class="header-link inline" (click)="showSettingsPage('upload')">UPLOAD</p>
-        <P class="header-link inline" (click)="showSettingsPage('camera')">CAMERA</P>
-        <p class="header-link inline" (click)="showSettingsPage('scale')">SCALE</p>
+        <p class="header-link inline-block" (click)="showSettingsPage('upload')">UPLOAD</p>
+        <P class="header-link inline-block" (click)="showSettingsPage('camera')">CAMERA</P>
+        <p class="header-link inline-block" (click)="showSettingsPage('scale')">SCALE</p>
       </div>
       <div class="right">
         <p id="settings-title" class="header-title">CLOUD SETTINGS</p>
@@ -152,8 +153,53 @@
         </div>
       </div>
     </div>
-    <div id="setting-content-camera" class="hide">
-      <p>CAMERA</p>
+    <div id="setting-content-camera" class="hide container center pb-2">
+      <button class="waves-effect btn color-primary settings-btn">SCAN</button>
+      <button class="waves-effect btn color-primary settings-btn">SAVE</button>
+      <div class="row">
+        <div class="col s12">
+          Distance To Floor:
+          <div class="input-field inline">
+            <input style="width: 50px; text-align: center;" id="email_inline" type="email" class="validate" [(ngModel)]="settings_distanceToFloor">
+          </div>
+        </div>
+      </div>
+      <p>Top</p>
+      <button class="waves-effect btn color-primary settings-arrow-btn">
+        <ion-icon name="arrow-up-outline" class="btn-icon"></ion-icon>
+      </button>
+      <br />
+      <button class="waves-effect btn color-primary settings-arrow-btn">
+        <ion-icon name="arrow-down-outline" class="btn-icon"></ion-icon>
+      </button>
+      <div class="row">
+        <div class="col s6">
+          <button class="waves-effect btn color-primary settings-arrow-btn">
+            <ion-icon name="arrow-back-outline" class="btn-icon"></ion-icon>
+          </button>
+          <button class="waves-effect btn color-primary settings-arrow-btn">
+            <ion-icon name="arrow-forward-outline" class="btn-icon"></ion-icon>
+          </button>
+          <p style="display: inline-block; margin-left: 5px;">Left</p>
+        </div>
+        <div class="col s6">
+          <p style="display: inline-block; margin-left: 10px; margin-right: 5px;">Right</p>
+          <button class="waves-effect btn color-primary settings-arrow-btn">
+            <ion-icon name="arrow-back-outline" class="btn-icon"></ion-icon>
+          </button>
+          <button class="waves-effect btn color-primary settings-arrow-btn">
+            <ion-icon name="arrow-forward-outline" class="btn-icon"></ion-icon>
+          </button>
+        </div>
+      </div>
+      <button class="waves-effect btn color-primary settings-arrow-btn">
+        <ion-icon name="arrow-up-outline" class="btn-icon"></ion-icon>
+      </button>
+      <br />
+      <button class="waves-effect btn color-primary settings-arrow-btn">
+        <ion-icon name="arrow-down-outline" class="btn-icon"></ion-icon>
+      </button>
+      <p>Bottom</p>
     </div>
     <div id="setting-content-scale" class="hide">
       <p>SCALE</p>

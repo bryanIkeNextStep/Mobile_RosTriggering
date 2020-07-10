@@ -12,6 +12,7 @@ export class GlobalConstants {
     public static settings_terminalId: string = "";
     public static settings_scannerId: string = "";
     public static settings_companyName: string = "";
+    public static settings_distanceToFloor: string = "152";
 
     //Pro Number
     public static reference_number: string = "";

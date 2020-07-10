@@ -38,6 +38,7 @@ export class HomePage {
   settings_terminalId: string = "";
   settings_scannerId: string = "";
   settings_companyName: string = "";
+  settings_distanceToFloor: string = "";
 
   //public ros vars
   ros: any;
@@ -79,6 +80,7 @@ export class HomePage {
     this.settings_terminalId = GlobalConstants.settings_terminalId;
     this.settings_scannerId = GlobalConstants.settings_scannerId;
     this.settings_companyName = GlobalConstants.settings_companyName;
+    this.settings_distanceToFloor = GlobalConstants.settings_distanceToFloor;
 
     this.connectRos();
   }

@@ -36,6 +36,11 @@
   margin-right: 10px;
 }
 
+.settings-arrow-btn {
+  margin: none;
+  height: 55px;
+}
+
 @media screen and (min-width: 520px) {
   .barcode-btn {
     display: none;
@@ -192,6 +197,18 @@
   font-weight: bold;
 }
 
+.center {
+  text-align: center;
+}
+
+.right {
+  float: right;
+}
+
+.left {
+  float: left;
+}
+
 .hide {
   display: none;
 }
@@ -206,7 +223,7 @@
   padding-top: 8px;
 }
 
-.inline {
+.inline-block {
   display: inline-block;
 }
 
