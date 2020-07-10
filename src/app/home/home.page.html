@@ -26,8 +26,9 @@
         <div id="status-section" class="status-section color-yellow">
           <p id="status">STARTING</p>
         </div>
-        <div class="waves-effect waves-light btn screen-area">
-          <img class="sensor-image" id="sensor-image" src="" />
+        <div id="imgSection" class="waves-effect waves-light btn screen-area">
+          <!-- <h1 class="bold md-font-size white-text">Can't Connect To ipAddress</h1> -->
+          <!-- <img class="sensor-image" id="sensor-image" src="" /> -->
         </div>
         <button class="waves-effect btn color-primary scan-btn" (click)="scan()">SCAN</button>
         <div class="measurement-section">
@@ -147,7 +148,7 @@
         <div class="container pb-2">
           <ion-label position="floating">Company Name</ion-label>
           <ion-input [(ngModel)]="settings_companyName"></ion-input>
-          <button class="waves-effect btn color-primary settings-btn" (click)="saveSettings()">SAVE
+          <button class="waves-effect btn color-primary settings-btn" (click)="saveCloudSettings()">SAVE
             CONFIGURATION</button>
           <button class="waves-effect btn color-grey settings-btn" (click)="cancelSettings()">CANCEL</button>
         </div>
@@ -155,7 +156,7 @@
     </div>
     <div id="setting-content-camera" class="hide container center pb-2">
       <button class="waves-effect btn color-primary settings-btn">SCAN</button>
-      <button class="waves-effect btn color-primary settings-btn">SAVE</button>
+      <button class="waves-effect btn color-primary settings-btn" (click)="saveCameraSettings()">SAVE</button>
       <div class="row">
         <div class="col s12">
           Distance To Floor:

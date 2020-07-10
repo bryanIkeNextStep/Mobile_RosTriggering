@@ -56,7 +56,7 @@ export class HomePage {
     GlobalConstants.reference_number = "";
 
     await this.setup();
-    await this.getUserSettings();
+    await this.getCloudSettings();
 
     this.uploadChecked = GlobalConstants.isUploadChecked;
     this.refChecked = GlobalConstants.isRefChecked;
@@ -85,20 +85,26 @@ export class HomePage {
     this.connectRos();
   }
 
-  async getUserSettings() {
-    const { value } = await Storage.get({ key: 'fs_ros_userSettings' });
+  async getCloudSettings() {
+    const { value } = await Storage.get({ key: "fs_ros_cloudSettings" });
     var settings = JSON.parse(value);
 
-    GlobalConstants.isUploadChecked = settings.upload;
-    GlobalConstants.isRefChecked = settings.refNum;
-    GlobalConstants.isLocalSaveChecked = settings.localSave;
+    if(settings) {
+      GlobalConstants.isUploadChecked = settings.upload;
+      GlobalConstants.isRefChecked = settings.refNum;
+      GlobalConstants.isLocalSaveChecked = settings.localSave;
+  
+      GlobalConstants.ipAddress = settings.ipAddress;
+      GlobalConstants.settings_userId = settings.userId;
+      GlobalConstants.settings_companyId = settings.companyId;
+      GlobalConstants.settings_terminalId = settings.terminalId;
+      GlobalConstants.settings_scannerId = settings.scannerId;
+      GlobalConstants.settings_companyName = settings.companyName;
+    }
+  }
 
-    GlobalConstants.ipAddress = settings.ipAddress;
-    GlobalConstants.settings_userId = settings.userId;
-    GlobalConstants.settings_companyId = settings.companyId;
-    GlobalConstants.settings_terminalId = settings.terminalId;
-    GlobalConstants.settings_scannerId = settings.scannerId;
-    GlobalConstants.settings_companyName = settings.companyName;
+  async getCameraSettings() {
+    const { value } = await Storage.get({ key: "fs_ros_cameraSettings" });
   }
 
   checkUploadSettings() {
@@ -162,18 +168,33 @@ export class HomePage {
     //Raspberry Pi connection
     // this.ros.connect('ws://192.168.0.196:9090');
 
-    this.ros.connect(`ws://${this.ipAddress}:9090`);
+    var imgSection = document.getElementById("imgSection");
 
-    this.ros.on('connection', function () {
-      console.log("connected to websocket server")
-    });
 
-    this.ros.on('error', function (err) {
-      console.log("error connecting to web socket server: ");
-      console.log(err);
-    });
+    try {
+      this.ros.connect(`ws://${this.ipAddress}:9090`);
+      this.createRosTopics(imgSection, this.renderer, this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.getCloudSettings, this.http, this.loadingCtrl, this.alertCtrl);
+    } catch (error) {
+      //This means that connection to the socket did not connect
+      imgSection.innerHTML = "";
 
-    this.createRosTopics(this.image, this.x, this.y, this.z, this.weight, this.renderer.setAttribute, this.changeSectionColor, this.getUserSettings, this.http, this.loadingCtrl, this.alertCtrl);
+      var errorText = this.renderer.createElement("h1");
+      this.renderer.addClass(errorText, "bold");
+      this.renderer.addClass(errorText, "md-font-size");
+      this.renderer.addClass(errorText, "white-text");
+      errorText.innerHTML = "Can't connect to ipaddress";
+
+      setTimeout(function() {
+        var statusSection = document.getElementById("status-section");
+        statusSection.classList.remove("color-yellow");
+        statusSection.classList.add("color-crimson");
+
+        var statusText = document.getElementById("status");
+        statusText.innerHTML = "ERROR!";
+
+        imgSection.appendChild(errorText);
+      }, 500);
+    }
   }
 
   changeSectionColor(colorToShow) {
@@ -187,7 +208,7 @@ export class HomePage {
     statusSection.classList.add(colorToShow);
   }
 
-  createRosTopics(image, x, y, z, weight, setAttribute, changeSectionColor, getUserSettings, http, loadingCtrl, alertCtrl) {
+  createRosTopics(imgSection, renderer, image, x, y, z, weight, setAttribute, changeSectionColor, getCloudSettings, http, loadingCtrl, alertCtrl) {
     this.settings_pub = new ROSLIB.Topic({
       ros: this.ros,
       name: '/settings',
@@ -226,8 +247,15 @@ export class HomePage {
 
     this.imageTopic.subscribe(function (message) {
       var imageData = "data:image/jpg;base64," + message.data;
-      var imageElem = document.getElementById("sensor-image");
-      setAttribute(imageElem, "src", imageData);
+
+      imgSection.innerHTML = "";
+
+      var newImg = renderer.createElement("img");
+      renderer.setAttribute(newImg, "id", "sensor-image");
+      renderer.setAttribute(newImg, "src", imageData);
+      renderer.addClass(newImg, "sensor-image");
+
+      imgSection.appendChild(newImg);
     });
 
     this.trigger_sub.subscribe(function (message) {
@@ -265,7 +293,7 @@ export class HomePage {
           y = message.points.y;
           z = message.points.z;
 
-          image = document.getElementById("sensor-image").getAttribute("src");
+          var image = document.getElementById("sensor-image").getAttribute("src");
 
           fullSend(image, http);
 
@@ -338,7 +366,7 @@ export class HomePage {
       if (isUploadChecked) {
         var base64_arr = [image];
 
-        uploadToServer(getUserSettings, base64_arr, GlobalConstants.reference_number, http, loadingCtrl, alertCtrl);
+        uploadToServer(getCloudSettings, base64_arr, GlobalConstants.reference_number, http, loadingCtrl, alertCtrl);
       }
 
       lengthElem.innerHTML = x;
@@ -350,14 +378,14 @@ export class HomePage {
       changeSectionColor("color-green")
     }
 
-    async function uploadToServer(getUserSettings, base64_arr, reference_number, http, loadingCtrl, alertCtrl) {
+    async function uploadToServer(getCloudSettings, base64_arr, reference_number, http, loadingCtrl, alertCtrl) {
       var loader = await loadingCtrl.create({
         message: "Uploading Scan"
       });
 
       await loader.present();
 
-      getUserSettings();
+      getCloudSettings();
 
       var length = parseInt(document.getElementById("length").innerHTML).toFixed();
       var width = parseInt(document.getElementById("width").innerHTML).toFixed();
@@ -464,7 +492,7 @@ export class HomePage {
     elementToShow.classList.remove("hide");;
   }
 
-  async saveSettings() {
+  async saveCloudSettings() {
     console.log(`ipAddress: ${this.ipAddress} user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
 
     var settings = {
@@ -482,7 +510,7 @@ export class HomePage {
     console.log(settings);
 
     await Storage.set({
-      key: "fs_ros_userSettings",
+      key: "fs_ros_cloudSettings",
       value: JSON.stringify(settings)
     });
 
@@ -498,13 +526,40 @@ export class HomePage {
       ]
     });
 
-    this.getUserSettings();
+    this.getCloudSettings();
 
     return (await newAlert).present();
   }
 
   cancelSettings() {
     this.showHome();
+  }
+
+  async saveCameraSettings() {
+    var settings = {
+      dtf: this.settings_distanceToFloor
+    }
+
+    await Storage.set({
+      key: "fs_ros_cameraSettings",
+      value: JSON.stringify(settings)
+    });
+
+    var newAlert = this.alertCtrl.create({
+      message: "Settings Saved!",
+      buttons: [
+        {
+          text: "OK",
+          handler: async () => {
+            return (await newAlert).dismiss();
+          }
+        }
+      ]
+    });
+
+    this.getCloudSettings();
+
+    return (await newAlert).present();
   }
 
   barcodeScan() {
