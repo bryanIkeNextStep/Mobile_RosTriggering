@@ -111,15 +111,10 @@ export class HomePage {
 
   checkUploadSettings() {
     GlobalConstants.isUploadChecked = this.uploadChecked;
-    console.log(this.uploadChecked);
-    console.log(GlobalConstants.isUploadChecked);
   }
 
   checkRefSettings() {
     GlobalConstants.isRefChecked = this.refChecked;
-    console.log(this.refChecked);
-    console.log(GlobalConstants.isRefChecked);
-
     var reference_number = document.getElementById("reference-number-section");
 
     if(GlobalConstants.isRefChecked) {
@@ -134,13 +129,10 @@ export class HomePage {
 
   checkLocalSaveSettings() {
     GlobalConstants.isLocalSaveChecked = this.localSaveChecked;
-    console.log(this.localSaveChecked);
-    console.log(GlobalConstants.isLocalSaveChecked);
   }
 
   setRefNumber() {
     GlobalConstants.reference_number = this.reference_number;
-    console.log("Changed ref number to: " + this.reference_number);
   }
 
   setup() {
@@ -393,8 +385,6 @@ export class HomePage {
       var height = parseInt(document.getElementById("height").innerHTML).toFixed();
       var weight = parseInt(document.getElementById("weight").innerHTML).toFixed();
 
-      console.log("ref_num: " + reference_number);
-
       var proNum;
 
       if(GlobalConstants.isRefChecked) {
@@ -417,15 +407,12 @@ export class HomePage {
         scanner_id: -1
       }
 
-      console.log(data);
-
       http.post("https://freightsnap-proto.herokuapp.com/addShipment", data, {
         "Access-Control-Allow-Origin": "http://localhost:8100",
         "Access-Control-Allow-Credentials": "true",
         "Accept": "application/x-www-form-urlencoded",
         "Content-Type": "application/x-www-form-urlencoded"
       }).subscribe(async (result) => {
-        console.log("DONE!");
         await loader.dismiss();
 
         var uploadAlert = await alertCtrl.create({
@@ -494,8 +481,6 @@ export class HomePage {
   }
 
   async saveCloudSettings() {
-    console.log(`ipAddress: ${this.ipAddress} user: ${this.settings_userId} company: ${this.settings_companyId} terminal: ${this.settings_terminalId} scanner: ${this.settings_scannerId} name: ${this.settings_companyName}`);
-
     var settings = {
       upload: this.uploadChecked,
       refNum: this.refChecked,
@@ -507,8 +492,6 @@ export class HomePage {
       scannerId: this.settings_scannerId,
       companyName: this.settings_companyName
     }
-
-    console.log(settings);
 
     await Storage.set({
       key: "fs_ros_cloudSettings",
@@ -529,7 +512,7 @@ export class HomePage {
 
     this.getCloudSettings();
 
-    // this.ngOnInit();
+    this.ngOnInit();
     return (await newAlert).present();
   }
 
