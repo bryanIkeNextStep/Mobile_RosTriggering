@@ -53,6 +53,8 @@ export class HomePage {
   weight_sub: any;
 
   async ngOnInit() {
+    console.log("ngOnInit called");
+
     GlobalConstants.reference_number = "";
 
     await this.setup();
@@ -169,7 +171,6 @@ export class HomePage {
     // this.ros.connect('ws://192.168.0.196:9090');
 
     var imgSection = document.getElementById("imgSection");
-
 
     try {
       this.ros.connect(`ws://${this.ipAddress}:9090`);
@@ -528,6 +529,7 @@ export class HomePage {
 
     this.getCloudSettings();
 
+    this.ngOnInit();
     return (await newAlert).present();
   }
 
