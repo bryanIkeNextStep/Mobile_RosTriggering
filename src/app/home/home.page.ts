@@ -529,7 +529,7 @@ export class HomePage {
 
     this.getCloudSettings();
 
-    this.ngOnInit();
+    // this.ngOnInit();
     return (await newAlert).present();
   }
 
